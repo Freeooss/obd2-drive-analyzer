@@ -230,6 +230,9 @@ data/processed/*
 data/history/*
 !data/history/.gitkeep
 
+# Runtime logs
+logs/
+
 # Python
 __pycache__/
 *.pyc

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>OBD-II Drive Analyzer</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div>
+            <h1>OBD-II Drive Analyzer</h1>
+            <p>Vehicle telemetry dashboard</p>
+        </div>
+    </header>
+
+    {% if drive %}
+
+    <section class="hero">
+
+        <div>
+            <span class="label">TODAY'S DRIVE</span>
+
+            <h2>
+                {{ drive.date }}
+            </h2>
+
+            <p>
+                Started {{ drive.time }}
+            </p>
+        </div>
+
+    </section>
+
+
+    <section class="cards">
+
+        <div class="card">
+            <span>Distance</span>
+            <strong>
+                {{ drive.distance_miles }} mi
+            </strong>
+        </div>
+
+        <div class="card">
+            <span>Drive Time</span>
+            <strong>
+                {{ drive.drive_minutes }} min
+            </strong>
+        </div>
+
+        <div class="card">
+            <span>Average Speed</span>
+            <strong>
+                {{ drive.speed.avg }} mph
+            </strong>
+        </div>
+
+        <div class="card">
+            <span>Maximum Speed</span>
+            <strong>
+                {{ drive.speed.max }} mph
+            </strong>
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>Hybrid Battery SOC</h2>
+
+        <div class="stats">
+
+            <div>
+                <span>Start</span>
+                <strong>
+                    {{ drive.soc.start }}%
+                </strong>
+            </div>
+
+            <div>
+                <span>Average</span>
+                <strong>
+                    {{ drive.soc.avg }}%
+                </strong>
+            </div>
+
+            <div>
+                <span>Minimum</span>
+                <strong>
+                    {{ drive.soc.min }}%
+                </strong>
+            </div>
+
+            <div>
+                <span>Maximum</span>
+                <strong>
+                    {{ drive.soc.max }}%
+                </strong>
+            </div>
+
+            <div>
+                <span>End</span>
+                <strong>
+                    {{ drive.soc.end }}%
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="socChart"></canvas>
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>Temperature</h2>
+
+        <div class="temperature-grid">
+
+            <div class="temp-card">
+                <span>Engine Coolant</span>
+                <strong>
+                    {{ drive.temperatures.engine.max }}°F
+                </strong>
+                <small>Maximum</small>
+            </div>
+
+            <div class="temp-card">
+                <span>Inverter Coolant</span>
+                <strong>
+                    {{ drive.temperatures.inverter.max }}°F
+                </strong>
+                <small>Maximum</small>
+            </div>
+
+            <div class="temp-card">
+                <span>MG1</span>
+                <strong>
+                    {{ drive.temperatures.mg1.max }}°F
+                </strong>
+                <small>Maximum</small>
+            </div>
+
+            <div class="temp-card">
+                <span>MG2</span>
+                <strong>
+                    {{ drive.temperatures.mg2.max }}°F
+                </strong>
+                <small>Maximum</small>
+            </div>
+
+            <div class="temp-card">
+                <span>HV Battery</span>
+                <strong>
+                    {{ drive.temperatures.battery.max }}°F
+                </strong>
+                <small>Maximum</small>
+            </div>
+
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="temperatureChart"></canvas>
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>Vehicle Speed</h2>
+
+        <div class="chart-wrapper">
+            <canvas id="speedChart"></canvas>
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>Drive History</h2>
+
+        <div class="history-list">
+
+            {% for item in drives %}
+
+            <a
+                class="history-item"
+                href="/?drive={{ item.id }}"
+            >
+
+                <div>
+                    <strong>
+                        {{ item.date }}
+                    </strong>
+
+                    <span>
+                        {{ item.time }}
+                    </span>
+                </div>
+
+                <div>
+                    {{ item.distance_miles }} mi
+                    ·
+                    {{ item.drive_minutes }} min
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <script>
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            interaction: {
+                intersect: false,
+                mode: "nearest"
+            },
+
+            scales: {
+                x: {
+                    type: "linear",
+                    title: {
+                        display: true,
+                        text: "Minutes"
+                    }
+                }
+            }
+        };
+
+
+        const socData =
+            {{ drive.charts.soc | tojson }};
+
+        new Chart(
+            document.getElementById("socChart"),
+            {
+                type: "line",
+
+                data: {
+                    datasets: [
+                        {
+                            label: "Battery SOC (%)",
+                            data: socData,
+                            parsing: false,
+                            pointRadius: 0,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+
+                options: chartOptions
+            }
+        );
+
+
+        const temperatureData = {
+            engine:
+                {{ drive.charts.engine | tojson }},
+
+            inverter:
+                {{ drive.charts.inverter | tojson }},
+
+            mg1:
+                {{ drive.charts.mg1 | tojson }},
+
+            mg2:
+                {{ drive.charts.mg2 | tojson }},
+
+            battery:
+                {{ drive.charts.battery | tojson }}
+        };
+
+
+        new Chart(
+            document.getElementById(
+                "temperatureChart"
+            ),
+
+            {
+                type: "line",
+
+                data: {
+                    datasets: [
+
+                        {
+                            label: "Engine Coolant",
+                            data: temperatureData.engine,
+                            parsing: false,
+                            pointRadius: 0
+                        },
+
+                        {
+                            label: "Inverter Coolant",
+                            data: temperatureData.inverter,
+                            parsing: false,
+                            pointRadius: 0
+                        },
+
+                        {
+                            label: "MG1",
+                            data: temperatureData.mg1,
+                            parsing: false,
+                            pointRadius: 0
+                        },
+
+                        {
+                            label: "MG2",
+                            data: temperatureData.mg2,
+                            parsing: false,
+                            pointRadius: 0
+                        },
+
+                        {
+                            label: "HV Battery",
+                            data: temperatureData.battery,
+                            parsing: false,
+                            pointRadius: 0
+                        }
+
+                    ]
+                },
+
+                options: chartOptions
+            }
+        );
+
+
+        const speedData =
+            {{ drive.charts.speed | tojson }};
+
+
+        new Chart(
+            document.getElementById("speedChart"),
+
+            {
+                type: "line",
+
+                data: {
+                    datasets: [
+                        {
+                            label: "Speed (mph)",
+                            data: speedData,
+                            parsing: false,
+                            pointRadius: 0,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+
+                options: chartOptions
+            }
+        );
+
+    </script>
+
+
+    {% else %}
+
+    <section class="empty">
+
+        <h2>No drive data yet</h2>
+
+        <p>
+            Import a Car Scanner CSV
+            to begin.
+        </p>
+
+    </section>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
