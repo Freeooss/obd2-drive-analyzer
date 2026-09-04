@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,7 +17,6 @@
     >
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 
 <body>
@@ -32,21 +30,24 @@
         </div>
     </header>
 
+
     {% if drive %}
 
     <section class="hero">
 
-        <div>
-            <span class="label">TODAY'S DRIVE</span>
+        <span class="label">
+            TODAY'S DRIVE
+        </span>
 
-            <h2>
-                {{ drive.date }}
-            </h2>
+        <h2>
+            {{ drive.vehicle }}
+        </h2>
 
-            <p>
-                Started {{ drive.time }}
-            </p>
-        </div>
+        <p>
+            {{ drive.date }}
+            ·
+            Started {{ drive.time }}
+        </p>
 
     </section>
 
@@ -55,29 +56,63 @@
 
         <div class="card">
             <span>Distance</span>
+
             <strong>
                 {{ drive.distance_miles }} mi
             </strong>
         </div>
 
+
         <div class="card">
             <span>Drive Time</span>
+
             <strong>
                 {{ drive.drive_minutes }} min
             </strong>
         </div>
 
+
         <div class="card">
             <span>Average Speed</span>
+
             <strong>
                 {{ drive.speed.avg }} mph
             </strong>
         </div>
 
+
         <div class="card">
             <span>Maximum Speed</span>
+
             <strong>
                 {{ drive.speed.max }} mph
+            </strong>
+        </div>
+
+
+        <div class="card">
+            <span>Average RPM</span>
+
+            <strong>
+                {{ drive.rpm.avg }} rpm
+            </strong>
+        </div>
+
+
+        <div class="card">
+            <span>Maximum RPM</span>
+
+            <strong>
+                {{ drive.rpm.max }} rpm
+            </strong>
+        </div>
+
+
+        <div class="card">
+            <span>Intake Air Temp</span>
+
+            <strong>
+                {{ drive.intake_air.avg }}°F
             </strong>
         </div>
 
@@ -86,46 +121,58 @@
 
     <section class="panel">
 
-        <h2>Hybrid Battery SOC</h2>
+        <h2>
+            Hybrid Battery SOC
+        </h2>
 
         <div class="stats">
 
             <div>
                 <span>Start</span>
+
                 <strong>
                     {{ drive.soc.start }}%
                 </strong>
             </div>
 
+
             <div>
                 <span>Average</span>
+
                 <strong>
                     {{ drive.soc.avg }}%
                 </strong>
             </div>
 
+
             <div>
                 <span>Minimum</span>
+
                 <strong>
                     {{ drive.soc.min }}%
                 </strong>
             </div>
 
+
             <div>
                 <span>Maximum</span>
+
                 <strong>
                     {{ drive.soc.max }}%
                 </strong>
             </div>
 
+
             <div>
                 <span>End</span>
+
                 <strong>
                     {{ drive.soc.end }}%
                 </strong>
             </div>
 
         </div>
+
 
         <div class="chart-wrapper">
             <canvas id="socChart"></canvas>
@@ -136,51 +183,116 @@
 
     <section class="panel">
 
-        <h2>Temperature</h2>
+        <h2>
+            Temperatures
+        </h2>
+
 
         <div class="temperature-grid">
 
             <div class="temp-card">
-                <span>Engine Coolant</span>
+
+                <span>
+                    Engine Coolant
+                </span>
+
                 <strong>
                     {{ drive.temperatures.engine.max }}°F
                 </strong>
-                <small>Maximum</small>
+
+                <small>
+                    Maximum
+                </small>
+
             </div>
 
+
             <div class="temp-card">
-                <span>Inverter Coolant</span>
+
+                <span>
+                    Inverter Coolant
+                </span>
+
                 <strong>
                     {{ drive.temperatures.inverter.max }}°F
                 </strong>
-                <small>Maximum</small>
+
+                <small>
+                    Maximum
+                </small>
+
             </div>
 
+
             <div class="temp-card">
-                <span>MG1</span>
+
+                <span>
+                    MG1
+                </span>
+
                 <strong>
                     {{ drive.temperatures.mg1.max }}°F
                 </strong>
-                <small>Maximum</small>
+
+                <small>
+                    Maximum
+                </small>
+
             </div>
 
+
             <div class="temp-card">
-                <span>MG2</span>
+
+                <span>
+                    MG2
+                </span>
+
                 <strong>
                     {{ drive.temperatures.mg2.max }}°F
                 </strong>
-                <small>Maximum</small>
+
+                <small>
+                    Maximum
+                </small>
+
             </div>
 
+
             <div class="temp-card">
-                <span>HV Battery</span>
+
+                <span>
+                    HV Battery
+                </span>
+
                 <strong>
                     {{ drive.temperatures.battery.max }}°F
                 </strong>
-                <small>Maximum</small>
+
+                <small>
+                    Maximum
+                </small>
+
+            </div>
+
+
+            <div class="temp-card">
+
+                <span>
+                    Intake Air
+                </span>
+
+                <strong>
+                    {{ drive.intake_air.max }}°F
+                </strong>
+
+                <small>
+                    Maximum
+                </small>
+
             </div>
 
         </div>
+
 
         <div class="chart-wrapper">
             <canvas id="temperatureChart"></canvas>
@@ -191,7 +303,22 @@
 
     <section class="panel">
 
-        <h2>Vehicle Speed</h2>
+        <h2>
+            Engine RPM
+        </h2>
+
+        <div class="chart-wrapper">
+            <canvas id="rpmChart"></canvas>
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>
+            Vehicle Speed
+        </h2>
 
         <div class="chart-wrapper">
             <canvas id="speedChart"></canvas>
@@ -202,7 +329,10 @@
 
     <section class="panel">
 
-        <h2>Drive History</h2>
+        <h2>
+            Drive History
+        </h2>
+
 
         <div class="history-list">
 
@@ -214,14 +344,19 @@
             >
 
                 <div>
+
                     <strong>
-                        {{ item.date }}
+                        {{ item.vehicle }}
                     </strong>
 
                     <span>
+                        {{ item.date }}
+                        ·
                         {{ item.time }}
                     </span>
+
                 </div>
+
 
                 <div>
                     {{ item.distance_miles }} mi
@@ -241,7 +376,9 @@
     <script>
 
         const chartOptions = {
+
             responsive: true,
+
             maintainAspectRatio: false,
 
             interaction: {
@@ -250,43 +387,76 @@
             },
 
             scales: {
+
                 x: {
+
                     type: "linear",
+
                     title: {
                         display: true,
                         text: "Minutes"
                     }
+
                 }
+
             }
+
         };
 
+
+        /*
+        -------------------------
+        BATTERY SOC CHART
+        -------------------------
+        */
 
         const socData =
             {{ drive.charts.soc | tojson }};
 
+
         new Chart(
             document.getElementById("socChart"),
+
             {
+
                 type: "line",
 
                 data: {
+
                     datasets: [
+
                         {
+
                             label: "Battery SOC (%)",
+
                             data: socData,
+
                             parsing: false,
+
                             pointRadius: 0,
+
                             borderWidth: 2
+
                         }
+
                     ]
+
                 },
 
                 options: chartOptions
+
             }
         );
 
 
+        /*
+        -------------------------
+        TEMPERATURE CHART
+        -------------------------
+        */
+
         const temperatureData = {
+
             engine:
                 {{ drive.charts.engine | tojson }},
 
@@ -300,7 +470,11 @@
                 {{ drive.charts.mg2 | tojson }},
 
             battery:
-                {{ drive.charts.battery | tojson }}
+                {{ drive.charts.battery | tojson }},
+
+            intake:
+                {{ drive.charts.intake_air | tojson }}
+
         };
 
 
@@ -310,53 +484,156 @@
             ),
 
             {
+
                 type: "line",
 
                 data: {
+
                     datasets: [
 
                         {
+
                             label: "Engine Coolant",
-                            data: temperatureData.engine,
+
+                            data:
+                                temperatureData.engine,
+
                             parsing: false,
+
                             pointRadius: 0
+
                         },
 
+
                         {
+
                             label: "Inverter Coolant",
-                            data: temperatureData.inverter,
+
+                            data:
+                                temperatureData.inverter,
+
                             parsing: false,
+
                             pointRadius: 0
+
                         },
 
+
                         {
+
                             label: "MG1",
-                            data: temperatureData.mg1,
+
+                            data:
+                                temperatureData.mg1,
+
                             parsing: false,
+
                             pointRadius: 0
+
                         },
 
+
                         {
+
                             label: "MG2",
-                            data: temperatureData.mg2,
+
+                            data:
+                                temperatureData.mg2,
+
                             parsing: false,
+
                             pointRadius: 0
+
                         },
 
+
                         {
+
                             label: "HV Battery",
-                            data: temperatureData.battery,
+
+                            data:
+                                temperatureData.battery,
+
                             parsing: false,
+
                             pointRadius: 0
+
+                        },
+
+
+                        {
+
+                            label: "Intake Air",
+
+                            data:
+                                temperatureData.intake,
+
+                            parsing: false,
+
+                            pointRadius: 0
+
                         }
 
                     ]
+
                 },
 
                 options: chartOptions
+
             }
         );
 
+
+        /*
+        -------------------------
+        RPM CHART
+        -------------------------
+        */
+
+        const rpmData =
+            {{ drive.charts.rpm | tojson }};
+
+
+        new Chart(
+            document.getElementById("rpmChart"),
+
+            {
+
+                type: "line",
+
+                data: {
+
+                    datasets: [
+
+                        {
+
+                            label: "Engine RPM",
+
+                            data: rpmData,
+
+                            parsing: false,
+
+                            pointRadius: 0,
+
+                            borderWidth: 2
+
+                        }
+
+                    ]
+
+                },
+
+                options: chartOptions
+
+            }
+        );
+
+
+        /*
+        -------------------------
+        SPEED CHART
+        -------------------------
+        */
 
         const speedData =
             {{ drive.charts.speed | tojson }};
@@ -366,23 +643,111 @@
             document.getElementById("speedChart"),
 
             {
+
                 type: "line",
 
                 data: {
+
                     datasets: [
+
                         {
+
                             label: "Speed (mph)",
+
                             data: speedData,
+
                             parsing: false,
+
                             pointRadius: 0,
+
                             borderWidth: 2
+
                         }
+
                     ]
+
                 },
 
                 options: chartOptions
+
             }
         );
+
+
+        /*
+        ----------------------------------
+        AUTOMATIC NEW DRIVE DETECTION
+
+        IMPORTANT:
+        Only auto-update if the user is
+        currently looking at the newest
+        drive.
+
+        Historical drives stay open.
+        ----------------------------------
+        */
+
+
+        const currentDriveId =
+            {{ drive.id | tojson }};
+
+
+        const latestDriveIdAtLoad =
+            {{ drives[0].id | tojson }};
+
+
+        const viewingLatestDrive =
+            currentDriveId ===
+            latestDriveIdAtLoad;
+
+
+        if (viewingLatestDrive) {
+
+            setInterval(
+
+                async () => {
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/api/latest"
+                            );
+
+
+                        const latest =
+                            await response.json();
+
+
+                        if (
+                            latest.id
+                            &&
+                            latest.id !==
+                            currentDriveId
+                        ) {
+
+                            window.location.href =
+                                "/";
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.log(
+                            "Waiting for dashboard update..."
+                        );
+
+                    }
+
+                },
+
+                2000
+
+            );
+
+        }
 
     </script>
 
@@ -391,7 +756,9 @@
 
     <section class="empty">
 
-        <h2>No drive data yet</h2>
+        <h2>
+            No drive data yet
+        </h2>
 
         <p>
             Import a Car Scanner CSV
@@ -405,4 +772,5 @@
 </div>
 
 </body>
+
 </html>

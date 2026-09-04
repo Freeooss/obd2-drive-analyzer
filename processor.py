@@ -58,10 +58,12 @@ def get_elapsed_minutes(df):
 
 
 def calculate_distance(elapsed_min, speed_mph):
-    temp = pd.DataFrame({
-        "elapsed_min": elapsed_min,
-        "speed_mph": speed_mph
-    }).dropna()
+    temp = pd.DataFrame(
+        {
+            "elapsed_min": elapsed_min,
+            "speed_mph": speed_mph
+        }
+    ).dropna()
 
     if len(temp) < 2:
         return 0.0
@@ -73,8 +75,8 @@ def calculate_distance(elapsed_min, speed_mph):
         / 60
     )
 
-    # Trapezoidal approximation
     previous_speed = temp["speed_mph"].shift(1)
+
     average_speed = (
         temp["speed_mph"] + previous_speed
     ) / 2
@@ -123,10 +125,12 @@ def last_value(series):
 
 
 def sample_chart(x, y, max_points=350):
-    temp = pd.DataFrame({
-        "x": x,
-        "y": y
-    }).dropna()
+    temp = pd.DataFrame(
+        {
+            "x": x,
+            "y": y
+        }
+    ).dropna()
 
     if temp.empty:
         return []
@@ -138,10 +142,12 @@ def sample_chart(x, y, max_points=350):
 
     sampled = temp.iloc[::step].copy()
 
-    # Always include the final point
     if sampled.index[-1] != temp.index[-1]:
         sampled = pd.concat(
-            [sampled, temp.iloc[[-1]]]
+            [
+                sampled,
+                temp.iloc[[-1]]
+            ]
         )
 
     return [
@@ -173,6 +179,17 @@ def get_drive_datetime(path):
     )
 
 
+def identify_vehicle(df):
+    if (
+        "MG1 temperature (℉)" in df.columns
+        and "MG2 temperature (℉)" in df.columns
+        and "State of Charge (%)" in df.columns
+    ):
+        return "2013 Toyota Camry Hybrid XLE"
+
+    return "Unknown Vehicle"
+
+
 def cleanup_old_data():
     cutoff = datetime.now() - timedelta(days=3)
 
@@ -202,11 +219,31 @@ def cleanup_old_data():
 def process_file(csv_path):
     csv_path = Path(csv_path)
 
-    print(f"[processor] Processing {csv_path.name}")
+    print(
+        f"[processor] Processing "
+        f"{csv_path.name}"
+    )
 
     df = pd.read_csv(csv_path)
 
     elapsed = get_elapsed_minutes(df)
+
+    vehicle_name = identify_vehicle(df)
+
+    speed = numeric_series(
+        df,
+        "Speed (GPS) (mph)"
+    )
+
+    rpm = numeric_series(
+        df,
+        "Engine RPM (rpm)"
+    )
+
+    intake_air = numeric_series(
+        df,
+        "Intake Air Temperature_7E0 (℉)"
+    )
 
     engine = numeric_series(
         df,
@@ -253,14 +290,13 @@ def process_file(csv_path):
     )
 
     battery_average = pd.concat(
-        [tb1, tb2, tb3],
+        [
+            tb1,
+            tb2,
+            tb3
+        ],
         axis=1
     ).mean(axis=1)
-
-    speed = numeric_series(
-        df,
-        "Speed (GPS) (mph)"
-    )
 
     distance = calculate_distance(
         elapsed,
@@ -269,29 +305,34 @@ def process_file(csv_path):
 
     valid_elapsed = elapsed.dropna()
 
-    drive_minutes = (
-        float(valid_elapsed.max())
-        if not valid_elapsed.empty
-        else 0
-    )
+    if valid_elapsed.empty:
+        drive_minutes = 0.0
+    else:
+        drive_minutes = float(
+            valid_elapsed.max()
+        )
 
     drive_datetime = get_drive_datetime(
         csv_path
     )
 
-    processed = pd.DataFrame({
-        "elapsed_min": elapsed,
-        "speed_mph": speed,
-        "engine_coolant_f": engine,
-        "inverter_coolant_f": inverter_f,
-        "mg1_f": mg1,
-        "mg2_f": mg2,
-        "battery_soc_pct": soc,
-        "battery_tb1_f": tb1,
-        "battery_tb2_f": tb2,
-        "battery_tb3_f": tb3,
-        "battery_average_f": battery_average
-    })
+    processed = pd.DataFrame(
+        {
+            "elapsed_min": elapsed,
+            "speed_mph": speed,
+            "engine_rpm": rpm,
+            "intake_air_f": intake_air,
+            "engine_coolant_f": engine,
+            "inverter_coolant_f": inverter_f,
+            "mg1_f": mg1,
+            "mg2_f": mg2,
+            "battery_soc_pct": soc,
+            "battery_tb1_f": tb1,
+            "battery_tb2_f": tb2,
+            "battery_tb3_f": tb3,
+            "battery_average_f": battery_average
+        }
+    )
 
     processed_path = (
         PROCESSED_DIR
@@ -305,6 +346,8 @@ def process_file(csv_path):
 
     summary = {
         "id": csv_path.stem,
+
+        "vehicle": vehicle_name,
 
         "date": drive_datetime.strftime(
             "%b %d, %Y"
@@ -324,7 +367,17 @@ def process_file(csv_path):
             2
         ),
 
-        "speed": safe_stats(speed),
+        "speed": safe_stats(
+            speed
+        ),
+
+        "rpm": safe_stats(
+            rpm
+        ),
+
+        "intake_air": safe_stats(
+            intake_air
+        ),
 
         "soc": {
             **safe_stats(soc),
@@ -333,21 +386,55 @@ def process_file(csv_path):
         },
 
         "temperatures": {
-            "engine": safe_stats(engine),
+            "engine": safe_stats(
+                engine
+            ),
+
             "inverter": safe_stats(
                 inverter_f
             ),
-            "mg1": safe_stats(mg1),
-            "mg2": safe_stats(mg2),
+
+            "mg1": safe_stats(
+                mg1
+            ),
+
+            "mg2": safe_stats(
+                mg2
+            ),
+
             "battery": safe_stats(
                 battery_average
             ),
-            "battery_tb1": safe_stats(tb1),
-            "battery_tb2": safe_stats(tb2),
-            "battery_tb3": safe_stats(tb3)
+
+            "battery_tb1": safe_stats(
+                tb1
+            ),
+
+            "battery_tb2": safe_stats(
+                tb2
+            ),
+
+            "battery_tb3": safe_stats(
+                tb3
+            )
         },
 
         "charts": {
+            "speed": sample_chart(
+                elapsed,
+                speed
+            ),
+
+            "rpm": sample_chart(
+                elapsed,
+                rpm
+            ),
+
+            "intake_air": sample_chart(
+                elapsed,
+                intake_air
+            ),
+
             "engine": sample_chart(
                 elapsed,
                 engine
@@ -376,11 +463,6 @@ def process_file(csv_path):
             "soc": sample_chart(
                 elapsed,
                 soc
-            ),
-
-            "speed": sample_chart(
-                elapsed,
-                speed
             )
         }
     }
