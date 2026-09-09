@@ -236,7 +236,7 @@ This allows the analyzer to run without manually opening a terminal each time th
 
 The analyzer keeps only recent drive data.
 
-Files older than 3 days are automatically removed from:
+Files older than 7 days are automatically removed from:
 
 ```text
 data/raw/
