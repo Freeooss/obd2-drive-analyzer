@@ -40,13 +40,13 @@
         </span>
 
         <h2>
-            {{ drive.vehicle }}
+            {{ drive.get('vehicle', 'Unknown vehicle') }}
         </h2>
 
         <p>
-            {{ drive.date }}
+            {{ drive.get('date', 'N/A') }}
             ·
-            Started {{ drive.time }}
+            Started {{ drive.get('time', 'N/A') }}
         </p>
 
     </section>
@@ -58,7 +58,7 @@
             <span>Distance</span>
 
             <strong>
-                {{ drive.distance_miles }} mi
+                {{ drive.get('distance_miles', 'N/A') }} mi
             </strong>
         </div>
 
@@ -67,7 +67,7 @@
             <span>Drive Time</span>
 
             <strong>
-                {{ drive.drive_minutes }} min
+                {{ drive.get('drive_minutes', 'N/A') }} min
             </strong>
         </div>
 
@@ -76,7 +76,7 @@
             <span>Average Speed</span>
 
             <strong>
-                {{ drive.speed.avg }} mph
+                {{ drive.get('speed', {}).get('avg', 'N/A') }} mph
             </strong>
         </div>
 
@@ -85,7 +85,7 @@
             <span>Maximum Speed</span>
 
             <strong>
-                {{ drive.speed.max }} mph
+                {{ drive.get('speed', {}).get('max', 'N/A') }} mph
             </strong>
         </div>
 
@@ -94,7 +94,7 @@
             <span>Average RPM</span>
 
             <strong>
-                {{ drive.rpm.avg }} rpm
+                {{ drive.get('rpm', {}).get('avg', 'N/A') }} rpm
             </strong>
         </div>
 
@@ -103,7 +103,7 @@
             <span>Maximum RPM</span>
 
             <strong>
-                {{ drive.rpm.max }} rpm
+                {{ drive.get('rpm', {}).get('max', 'N/A') }} rpm
             </strong>
         </div>
 
@@ -112,7 +112,7 @@
             <span>Intake Air Temp</span>
 
             <strong>
-                {{ drive.intake_air.avg }}°F
+                {{ drive.get('intake_air', {}).get('avg', 'N/A') }}°F
             </strong>
         </div>
 
@@ -131,7 +131,7 @@
                 <span>Start</span>
 
                 <strong>
-                    {{ drive.soc.start }}%
+                    {{ drive.get('soc', {}).get('start', 'N/A') }}%
                 </strong>
             </div>
 
@@ -140,7 +140,7 @@
                 <span>Average</span>
 
                 <strong>
-                    {{ drive.soc.avg }}%
+                    {{ drive.get('soc', {}).get('avg', 'N/A') }}%
                 </strong>
             </div>
 
@@ -149,7 +149,7 @@
                 <span>Minimum</span>
 
                 <strong>
-                    {{ drive.soc.min }}%
+                    {{ drive.get('soc', {}).get('min', 'N/A') }}%
                 </strong>
             </div>
 
@@ -158,7 +158,7 @@
                 <span>Maximum</span>
 
                 <strong>
-                    {{ drive.soc.max }}%
+                    {{ drive.get('soc', {}).get('max', 'N/A') }}%
                 </strong>
             </div>
 
@@ -167,7 +167,7 @@
                 <span>End</span>
 
                 <strong>
-                    {{ drive.soc.end }}%
+                    {{ drive.get('soc', {}).get('end', 'N/A') }}%
                 </strong>
             </div>
 
@@ -197,7 +197,12 @@
                 </span>
 
                 <strong>
-                    {{ drive.temperatures.engine.max }}°F
+                    {{
+                        drive
+                        .get('temperatures', {})
+                        .get('engine', {})
+                        .get('max', 'N/A')
+                    }}°F
                 </strong>
 
                 <small>
@@ -214,7 +219,12 @@
                 </span>
 
                 <strong>
-                    {{ drive.temperatures.inverter.max }}°F
+                    {{
+                        drive
+                        .get('temperatures', {})
+                        .get('inverter', {})
+                        .get('max', 'N/A')
+                    }}°F
                 </strong>
 
                 <small>
@@ -231,7 +241,12 @@
                 </span>
 
                 <strong>
-                    {{ drive.temperatures.mg1.max }}°F
+                    {{
+                        drive
+                        .get('temperatures', {})
+                        .get('mg1', {})
+                        .get('max', 'N/A')
+                    }}°F
                 </strong>
 
                 <small>
@@ -248,7 +263,12 @@
                 </span>
 
                 <strong>
-                    {{ drive.temperatures.mg2.max }}°F
+                    {{
+                        drive
+                        .get('temperatures', {})
+                        .get('mg2', {})
+                        .get('max', 'N/A')
+                    }}°F
                 </strong>
 
                 <small>
@@ -265,7 +285,12 @@
                 </span>
 
                 <strong>
-                    {{ drive.temperatures.battery.max }}°F
+                    {{
+                        drive
+                        .get('temperatures', {})
+                        .get('battery', {})
+                        .get('max', 'N/A')
+                    }}°F
                 </strong>
 
                 <small>
@@ -282,7 +307,11 @@
                 </span>
 
                 <strong>
-                    {{ drive.intake_air.max }}°F
+                    {{
+                        drive
+                        .get('intake_air', {})
+                        .get('max', 'N/A')
+                    }}°F
                 </strong>
 
                 <small>
@@ -340,28 +369,28 @@
 
             <a
                 class="history-item"
-                href="/?drive={{ item.id }}"
+                href="/?drive={{ item.get('id', '') }}"
             >
 
                 <div>
 
                     <strong>
-                        {{ item.vehicle }}
+                        {{ item.get('vehicle', 'Unknown vehicle') }}
                     </strong>
 
                     <span>
-                        {{ item.date }}
+                        {{ item.get('date', 'N/A') }}
                         ·
-                        {{ item.time }}
+                        {{ item.get('time', 'N/A') }}
                     </span>
 
                 </div>
 
 
                 <div>
-                    {{ item.distance_miles }} mi
+                    {{ item.get('distance_miles', 'N/A') }} mi
                     ·
-                    {{ item.drive_minutes }} min
+                    {{ item.get('drive_minutes', 'N/A') }} min
                 </div>
 
             </a>
@@ -411,7 +440,12 @@
         */
 
         const socData =
-            {{ drive.charts.soc | tojson }};
+            {{
+                drive
+                .get('charts', {})
+                .get('soc', [])
+                | tojson
+            }};
 
 
         new Chart(
@@ -458,22 +492,52 @@
         const temperatureData = {
 
             engine:
-                {{ drive.charts.engine | tojson }},
+                {{
+                    drive
+                        .get('charts', {})
+                        .get('engine', [])
+                        | tojson
+                }},
 
             inverter:
-                {{ drive.charts.inverter | tojson }},
+                {{
+                    drive
+                        .get('charts', {})
+                        .get('inverter', [])
+                        | tojson
+                }},
 
             mg1:
-                {{ drive.charts.mg1 | tojson }},
+                {{
+                    drive
+                        .get('charts', {})
+                        .get('mg1', [])
+                        | tojson
+                }},
 
             mg2:
-                {{ drive.charts.mg2 | tojson }},
+                {{
+                    drive
+                        .get('charts', {})
+                        .get('mg2', [])
+                        | tojson
+                }},
 
             battery:
-                {{ drive.charts.battery | tojson }},
+                {{
+                    drive
+                        .get('charts', {})
+                        .get('battery', [])
+                        | tojson
+                }},
 
             intake:
-                {{ drive.charts.intake_air | tojson }}
+                {{
+                    drive
+                        .get('charts', {})
+                        .get('intake_air', [])
+                        | tojson
+                }}
 
         };
 
@@ -591,7 +655,12 @@
         */
 
         const rpmData =
-            {{ drive.charts.rpm | tojson }};
+            {{
+                drive
+                    .get('charts', {})
+                    .get('rpm', [])
+                    | tojson
+            }};
 
 
         new Chart(
@@ -636,7 +705,12 @@
         */
 
         const speedData =
-            {{ drive.charts.speed | tojson }};
+            {{
+                drive
+                    .get('charts', {})
+                    .get('speed', [])
+                    | tojson
+            }};
 
 
         new Chart(
@@ -678,7 +752,6 @@
         ----------------------------------
         AUTOMATIC NEW DRIVE DETECTION
 
-        IMPORTANT:
         Only auto-update if the user is
         currently looking at the newest
         drive.
@@ -689,11 +762,21 @@
 
 
         const currentDriveId =
-            {{ drive.id | tojson }};
+            {{
+                drive.get('id', none)
+                | tojson
+            }};
 
 
         const latestDriveIdAtLoad =
-            {{ drives[0].id | tojson }};
+            {{
+                (
+                    drives[0].get('id', none)
+                    if drives
+                    else none
+                )
+                | tojson
+            }};
 
 
         const viewingLatestDrive =
