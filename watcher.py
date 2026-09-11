@@ -1,160 +1,53 @@
-import shutil
+import subprocess
 import time
 from pathlib import Path
 
-import pandas as pd
 
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
+PROJECT_DIR = Path.home() / "Documents" / "obd2-drive-analyzer"
+RAW_DIR = PROJECT_DIR / "data" / "raw"
 
-from processor import (
-    process_file,
-    cleanup_old_data
-)
+CHECK_INTERVAL = 3
 
 
-DOWNLOADS = Path.home() / "Downloads"
-RAW_DIR = Path("data/raw")
+def get_csv_snapshot():
+    return {
+        path.name: path.stat().st_mtime
+        for path in RAW_DIR.glob("*.csv")
+    }
 
 
-def looks_like_car_scanner_csv(path):
-    try:
-        columns = pd.read_csv(
-            path,
-            nrows=1
-        ).columns
+def run_processor():
+    print("[watcher] Running latest processor.py")
 
-        required = {
-            "time",
-            "Speed (GPS) (mph)",
-            "State of Charge (%)"
-        }
-
-        return required.issubset(
-            set(columns)
-        )
-
-    except Exception:
-        return False
-
-
-def wait_until_finished(path):
-    previous_size = -1
-
-    for _ in range(20):
-
-        if not path.exists():
-            return False
-
-        current_size = path.stat().st_size
-
-        if (
-            current_size > 0
-            and current_size == previous_size
-        ):
-            return True
-
-        previous_size = current_size
-
-        time.sleep(1)
-
-    return False
-
-
-def import_file(path):
-    path = Path(path)
-
-    if path.suffix.lower() != ".csv":
-        return
-
-    print(
-        f"[watcher] CSV detected: {path.name}"
+    subprocess.run(
+        [
+            str(PROJECT_DIR / "venv" / "bin" / "python"),
+            str(PROJECT_DIR / "processor.py")
+        ],
+        cwd=PROJECT_DIR
     )
 
-    if not wait_until_finished(path):
-        return
 
-    if not looks_like_car_scanner_csv(path):
-        print(
-            "[watcher] Not a Car Scanner CSV."
-        )
-        return
+def main():
+    print("[watcher] OBD-II watcher started")
 
-    destination = RAW_DIR / path.name
+    previous = get_csv_snapshot()
 
-    if destination.exists():
-        print(
-            "[watcher] File already imported."
-        )
-        return
+    while True:
+        time.sleep(CHECK_INTERVAL)
 
-    shutil.copy2(
-        path,
-        destination
-    )
+        current = get_csv_snapshot()
 
-    print(
-        f"[watcher] Imported: "
-        f"{destination}"
-    )
+        if current != previous:
+            print("[watcher] CSV change detected")
 
-    process_file(destination)
+            # Give the incoming file a moment to finish copying
+            time.sleep(2)
 
-    cleanup_old_data()
+            run_processor()
 
-
-class DownloadHandler(
-    FileSystemEventHandler
-):
-
-    def on_created(self, event):
-
-        if not event.is_directory:
-            import_file(
-                event.src_path
-            )
-
-    def on_moved(self, event):
-
-        if not event.is_directory:
-            import_file(
-                event.dest_path
-            )
-
-
-def scan_existing_files():
-
-    for path in DOWNLOADS.glob("*.csv"):
-        import_file(path)
+            previous = get_csv_snapshot()
 
 
 if __name__ == "__main__":
-
-    print(
-        f"[watcher] Watching "
-        f"{DOWNLOADS}"
-    )
-
-    cleanup_old_data()
-
-    scan_existing_files()
-
-    observer = Observer()
-
-    observer.schedule(
-        DownloadHandler(),
-        str(DOWNLOADS),
-        recursive=False
-    )
-
-    observer.start()
-
-    try:
-        while True:
-            time.sleep(60)
-            cleanup_old_data()
-
-    except KeyboardInterrupt:
-        observer.stop()
-
-    observer.join()
+    main()

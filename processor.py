@@ -443,7 +443,6 @@ def cleanup_old_data():
     )
 
     for directory in [
-        RAW_DIR,
         PROCESSED_DIR,
         HISTORY_DIR
     ]:
