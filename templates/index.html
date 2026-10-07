@@ -33,11 +33,10 @@
 
     {% if drive %}
 
-    <section class="hero">
+    <!-- CURRENT DRIVE -->
 
-        <span class="label">
-            TODAY'S DRIVE
-        </span>
+    <section class="hero">
+        <span class="label">TODAY'S DRIVE</span>
 
         <h2>
             {{ drive.get('vehicle', 'Unknown vehicle') }}
@@ -48,104 +47,115 @@
             ·
             Started {{ drive.get('time', 'N/A') }}
         </p>
-
     </section>
 
+
+    <!-- SUMMARY CARDS -->
 
     <section class="cards">
 
         <div class="card">
             <span>Drive Time</span>
-
             <strong>
                 {{ drive.get('drive_minutes', 'N/A') }} min
             </strong>
         </div>
 
-
         <div class="card">
-            <span>Average RPM</span>
-
+            <span>Average Engine RPM</span>
             <strong>
-                {{ drive.get('rpm', {}).get('avg', 'N/A') }} rpm
+                {{ drive.get('rpm', {}).get('avg')
+                   if drive.get('rpm', {}).get('avg') is not none
+                   else 'N/A' }} rpm
             </strong>
         </div>
 
-
         <div class="card">
-            <span>Maximum RPM</span>
-
+            <span>Maximum Engine RPM</span>
             <strong>
-                {{ drive.get('rpm', {}).get('max', 'N/A') }} rpm
+                {{ drive.get('rpm', {}).get('max')
+                   if drive.get('rpm', {}).get('max') is not none
+                   else 'N/A' }} rpm
             </strong>
         </div>
 
+        <div class="card">
+            <span>Max MG1 RPM</span>
+            <strong>
+                {{ drive.get('mg1_rpm', {}).get('max')
+                   if drive.get('mg1_rpm', {}).get('max') is not none
+                   else 'N/A' }} rpm
+            </strong>
+        </div>
+
+        <div class="card">
+            <span>Max MG2 RPM</span>
+            <strong>
+                {{ drive.get('mg2_rpm', {}).get('max')
+                   if drive.get('mg2_rpm', {}).get('max') is not none
+                   else 'N/A' }} rpm
+            </strong>
+        </div>
+
+        <div class="card">
+            <span>Average Engine Load</span>
+            <strong>
+                {{ drive.get('engine_load', {}).get('avg')
+                   if drive.get('engine_load', {}).get('avg') is not none
+                   else 'N/A' }}%
+            </strong>
+        </div>
+
+        <div class="card">
+            <span>Max Mass Air Flow</span>
+            <strong>
+                {{ drive.get('maf', {}).get('max')
+                   if drive.get('maf', {}).get('max') is not none
+                   else 'N/A' }} g/s
+            </strong>
+        </div>
 
         <div class="card">
             <span>Intake Air Temp</span>
-
             <strong>
-                {{ drive.get('intake_air', {}).get('avg', 'N/A') }}°F
+                {{ drive.get('intake_air', {}).get('avg')
+                   if drive.get('intake_air', {}).get('avg') is not none
+                   else 'N/A' }}°F
             </strong>
         </div>
 
     </section>
 
 
+    <!-- HYBRID BATTERY SOC -->
+
     <section class="panel">
 
-        <h2>
-            Hybrid Battery SOC
-        </h2>
+        <h2>Hybrid Battery SOC</h2>
 
         <div class="stats">
 
+            {% for label, key in [
+                ('Start', 'start'),
+                ('Average', 'avg'),
+                ('Minimum', 'min'),
+                ('Maximum', 'max'),
+                ('End', 'end')
+            ] %}
+
             <div>
-                <span>Start</span>
+                <span>{{ label }}</span>
 
                 <strong>
-                    {{ drive.get('soc', {}).get('start', 'N/A') }}%
+                    {{ drive.get('soc', {}).get(key)
+                       if drive.get('soc', {}).get(key) is not none
+                       else 'N/A' }}%
                 </strong>
             </div>
 
-
-            <div>
-                <span>Average</span>
-
-                <strong>
-                    {{ drive.get('soc', {}).get('avg', 'N/A') }}%
-                </strong>
-            </div>
-
-
-            <div>
-                <span>Minimum</span>
-
-                <strong>
-                    {{ drive.get('soc', {}).get('min', 'N/A') }}%
-                </strong>
-            </div>
-
-
-            <div>
-                <span>Maximum</span>
-
-                <strong>
-                    {{ drive.get('soc', {}).get('max', 'N/A') }}%
-                </strong>
-            </div>
-
-
-            <div>
-                <span>End</span>
-
-                <strong>
-                    {{ drive.get('soc', {}).get('end', 'N/A') }}%
-                </strong>
-            </div>
+            {% endfor %}
 
         </div>
-
 
         <div class="chart-wrapper">
             <canvas id="socChart"></canvas>
@@ -154,147 +164,58 @@
     </section>
 
 
+    <!-- TEMPERATURES -->
+
     <section class="panel">
 
-        <h2>
-            Temperatures
-        </h2>
-
+        <h2>Temperatures</h2>
 
         <div class="temperature-grid">
 
+            {% for title, name in [
+                ('Engine Coolant', 'engine'),
+                ('Inverter Coolant', 'inverter'),
+                ('MG1', 'mg1'),
+                ('MG2', 'mg2'),
+                ('HV Battery', 'battery')
+            ] %}
+
             <div class="temp-card">
 
-                <span>
-                    Engine Coolant
-                </span>
+                <span>{{ title }}</span>
 
                 <strong>
                     {{
-                        drive
-                        .get('temperatures', {})
-                        .get('engine', {})
-                        .get('max', 'N/A')
+                        drive.get('temperatures', {})
+                        .get(name, {})
+                        .get('max')
+                        if drive.get('temperatures', {})
+                        .get(name, {})
+                        .get('max') is not none
+                        else 'N/A'
                     }}°F
                 </strong>
 
-                <small>
-                    Maximum
-                </small>
-
+                <small>Maximum</small>
             </div>
 
+            {% endfor %}
 
             <div class="temp-card">
 
-                <span>
-                    Inverter Coolant
-                </span>
+                <span>Intake Air</span>
 
                 <strong>
-                    {{
-                        drive
-                        .get('temperatures', {})
-                        .get('inverter', {})
-                        .get('max', 'N/A')
-                    }}°F
+                    {{ drive.get('intake_air', {}).get('max')
+                       if drive.get('intake_air', {}).get('max') is not none
+                       else 'N/A' }}°F
                 </strong>
 
-                <small>
-                    Maximum
-                </small>
-
-            </div>
-
-
-            <div class="temp-card">
-
-                <span>
-                    MG1
-                </span>
-
-                <strong>
-                    {{
-                        drive
-                        .get('temperatures', {})
-                        .get('mg1', {})
-                        .get('max', 'N/A')
-                    }}°F
-                </strong>
-
-                <small>
-                    Maximum
-                </small>
-
-            </div>
-
-
-            <div class="temp-card">
-
-                <span>
-                    MG2
-                </span>
-
-                <strong>
-                    {{
-                        drive
-                        .get('temperatures', {})
-                        .get('mg2', {})
-                        .get('max', 'N/A')
-                    }}°F
-                </strong>
-
-                <small>
-                    Maximum
-                </small>
-
-            </div>
-
-
-            <div class="temp-card">
-
-                <span>
-                    HV Battery
-                </span>
-
-                <strong>
-                    {{
-                        drive
-                        .get('temperatures', {})
-                        .get('battery', {})
-                        .get('max', 'N/A')
-                    }}°F
-                </strong>
-
-                <small>
-                    Maximum
-                </small>
-
-            </div>
-
-
-            <div class="temp-card">
-
-                <span>
-                    Intake Air
-                </span>
-
-                <strong>
-                    {{
-                        drive
-                        .get('intake_air', {})
-                        .get('max', 'N/A')
-                    }}°F
-                </strong>
-
-                <small>
-                    Maximum
-                </small>
+                <small>Maximum</small>
 
             </div>
 
         </div>
-
 
         <div class="chart-wrapper">
             <canvas id="temperatureChart"></canvas>
@@ -303,11 +224,11 @@
     </section>
 
 
+    <!-- HYBRID POWERTRAIN RPM -->
+
     <section class="panel">
 
-        <h2>
-            Engine RPM
-        </h2>
+        <h2>Hybrid Powertrain RPM</h2>
 
         <div class="chart-wrapper">
             <canvas id="rpmChart"></canvas>
@@ -316,12 +237,24 @@
     </section>
 
 
+    <!-- ENGINE PERFORMANCE -->
+
     <section class="panel">
 
-        <h2>
-            Drive History
-        </h2>
+        <h2>Engine Performance</h2>
 
+        <div class="chart-wrapper">
+            <canvas id="performanceChart"></canvas>
+        </div>
+
+    </section>
+
+
+    <!-- DRIVE HISTORY -->
+
+    <section class="panel">
+
+        <h2>Drive History</h2>
 
         <div class="history-list">
 
@@ -329,11 +262,10 @@
 
             <a
                 class="history-item"
-                href="/?drive={{ item.get('id', '') }}"
+                href="/?drive={{ item.get('id', '') | urlencode }}"
             >
 
                 <div>
-
                     <strong>
                         {{ item.get('vehicle', 'Unknown vehicle') }}
                     </strong>
@@ -343,9 +275,7 @@
                         ·
                         {{ item.get('time', 'N/A') }}
                     </span>
-
                 </div>
-
 
                 <div>
                     {{ item.get('drive_minutes', 'N/A') }} min
@@ -362,6 +292,53 @@
 
     <script>
 
+        // -------------------------
+        // CHART DATA
+        // -------------------------
+
+        const charts =
+            {{ drive.get('charts', {}) | tojson }};
+
+
+        // Reusable Chart.js dataset helper.
+
+        const series = (
+            name,
+            label,
+            extra = {}
+        ) => ({
+
+            label: label,
+
+            data: charts[name] || [],
+
+            parsing: false,
+
+            pointRadius: 0,
+
+            borderWidth: 2,
+
+            ...extra
+
+        });
+
+
+        // -------------------------
+        // SHARED CHART OPTIONS
+        // -------------------------
+
+        const axisX = {
+
+            type: "linear",
+
+            title: {
+                display: true,
+                text: "Minutes"
+            }
+
+        };
+
+
         const chartOptions = {
 
             responsive: true,
@@ -374,306 +351,210 @@
             },
 
             scales: {
+                x: axisX
+            }
 
-                x: {
+        };
 
-                    type: "linear",
 
-                    title: {
-                        display: true,
-                        text: "Minutes"
+        const makeChart = (
+            id,
+            datasets,
+            options = chartOptions
+        ) => {
+
+            return new Chart(
+
+                document.getElementById(id),
+
+                {
+                    type: "line",
+
+                    data: {
+                        datasets: datasets
+                    },
+
+                    options: options
+                }
+
+            );
+
+        };
+
+
+        // -------------------------
+        // HYBRID BATTERY SOC
+        // -------------------------
+
+        makeChart(
+
+            "socChart",
+
+            [
+                series(
+                    "soc",
+                    "Battery SOC (%)"
+                )
+            ]
+
+        );
+
+
+        // -------------------------
+        // TEMPERATURE CHART
+        // -------------------------
+
+        makeChart(
+
+            "temperatureChart",
+
+            [
+                series(
+                    "engine",
+                    "Engine Coolant"
+                ),
+
+                series(
+                    "inverter",
+                    "Inverter Coolant"
+                ),
+
+                series(
+                    "mg1",
+                    "MG1"
+                ),
+
+                series(
+                    "mg2",
+                    "MG2"
+                ),
+
+                series(
+                    "battery",
+                    "HV Battery"
+                ),
+
+                series(
+                    "intake_air",
+                    "Intake Air"
+                )
+            ]
+
+        );
+
+
+        // -------------------------
+        // HYBRID POWERTRAIN RPM
+        // -------------------------
+
+        makeChart(
+
+            "rpmChart",
+
+            [
+                series(
+                    "rpm",
+                    "Engine RPM"
+                ),
+
+                series(
+                    "mg1_rpm",
+                    "MG1 RPM"
+                ),
+
+                series(
+                    "mg2_rpm",
+                    "MG2 RPM"
+                )
+            ]
+
+        );
+
+
+        // -------------------------
+        // ENGINE PERFORMANCE
+        // ENGINE LOAD + MAF
+        // -------------------------
+
+        // Separate Y axes because these metrics
+        // use different units.
+
+        makeChart(
+
+            "performanceChart",
+
+            [
+                series(
+                    "engine_load",
+                    "Engine Load (%)",
+                    {
+                        yAxisID: "load"
+                    }
+                ),
+
+                series(
+                    "maf",
+                    "Mass Air Flow (g/s)",
+                    {
+                        yAxisID: "airflow"
+                    }
+                )
+            ],
+
+            {
+                ...chartOptions,
+
+                scales: {
+
+                    x: axisX,
+
+                    load: {
+
+                        type: "linear",
+
+                        position: "left",
+
+                        title: {
+                            display: true,
+                            text: "Engine Load (%)"
+                        }
+
+                    },
+
+                    airflow: {
+
+                        type: "linear",
+
+                        position: "right",
+
+                        grid: {
+                            drawOnChartArea: false
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Mass Air Flow (g/s)"
+                        }
+
                     }
 
                 }
 
             }
 
-        };
-
-
-        /*
-        -------------------------
-        BATTERY SOC CHART
-        -------------------------
-        */
-
-        const socData =
-            {{
-                drive
-                .get('charts', {})
-                .get('soc', [])
-                | tojson
-            }};
-
-
-        new Chart(
-            document.getElementById("socChart"),
-
-            {
-
-                type: "line",
-
-                data: {
-
-                    datasets: [
-
-                        {
-
-                            label: "Battery SOC (%)",
-
-                            data: socData,
-
-                            parsing: false,
-
-                            pointRadius: 0,
-
-                            borderWidth: 2
-
-                        }
-
-                    ]
-
-                },
-
-                options: chartOptions
-
-            }
         );
 
 
-        /*
-        -------------------------
-        TEMPERATURE CHART
-        -------------------------
-        */
-
-        const temperatureData = {
-
-            engine:
-                {{
-                    drive
-                        .get('charts', {})
-                        .get('engine', [])
-                        | tojson
-                }},
-
-            inverter:
-                {{
-                    drive
-                        .get('charts', {})
-                        .get('inverter', [])
-                        | tojson
-                }},
-
-            mg1:
-                {{
-                    drive
-                        .get('charts', {})
-                        .get('mg1', [])
-                        | tojson
-                }},
-
-            mg2:
-                {{
-                    drive
-                        .get('charts', {})
-                        .get('mg2', [])
-                        | tojson
-                }},
-
-            battery:
-                {{
-                    drive
-                        .get('charts', {})
-                        .get('battery', [])
-                        | tojson
-                }},
-
-            intake:
-                {{
-                    drive
-                        .get('charts', {})
-                        .get('intake_air', [])
-                        | tojson
-                }}
-
-        };
-
-
-        new Chart(
-            document.getElementById(
-                "temperatureChart"
-            ),
-
-            {
-
-                type: "line",
-
-                data: {
-
-                    datasets: [
-
-                        {
-
-                            label: "Engine Coolant",
-
-                            data:
-                                temperatureData.engine,
-
-                            parsing: false,
-
-                            pointRadius: 0
-
-                        },
-
-
-                        {
-
-                            label: "Inverter Coolant",
-
-                            data:
-                                temperatureData.inverter,
-
-                            parsing: false,
-
-                            pointRadius: 0
-
-                        },
-
-
-                        {
-
-                            label: "MG1",
-
-                            data:
-                                temperatureData.mg1,
-
-                            parsing: false,
-
-                            pointRadius: 0
-
-                        },
-
-
-                        {
-
-                            label: "MG2",
-
-                            data:
-                                temperatureData.mg2,
-
-                            parsing: false,
-
-                            pointRadius: 0
-
-                        },
-
-
-                        {
-
-                            label: "HV Battery",
-
-                            data:
-                                temperatureData.battery,
-
-                            parsing: false,
-
-                            pointRadius: 0
-
-                        },
-
-
-                        {
-
-                            label: "Intake Air",
-
-                            data:
-                                temperatureData.intake,
-
-                            parsing: false,
-
-                            pointRadius: 0
-
-                        }
-
-                    ]
-
-                },
-
-                options: chartOptions
-
-            }
-        );
-
-
-        /*
-        -------------------------
-        RPM CHART
-        -------------------------
-        */
-
-        const rpmData =
-            {{
-                drive
-                    .get('charts', {})
-                    .get('rpm', [])
-                    | tojson
-            }};
-
-
-        new Chart(
-            document.getElementById("rpmChart"),
-
-            {
-
-                type: "line",
-
-                data: {
-
-                    datasets: [
-
-                        {
-
-                            label: "Engine RPM",
-
-                            data: rpmData,
-
-                            parsing: false,
-
-                            pointRadius: 0,
-
-                            borderWidth: 2
-
-                        }
-
-                    ]
-
-                },
-
-                options: chartOptions
-
-            }
-        );
-
-
-        /*
-        ----------------------------------
-        AUTOMATIC NEW DRIVE DETECTION
-
-        Only auto-update if the user is
-        currently looking at the newest
-        drive.
-
-        Historical drives stay open.
-        ----------------------------------
-        */
-
+        // -------------------------
+        // AUTOMATIC DRIVE DETECTION
+        // -------------------------
+
+        // Only refresh when viewing the
+        // newest drive.
+        // Historical drives stay open.
 
         const currentDriveId =
-            {{
-                drive.get('id', none)
-                | tojson
-            }};
+            {{ drive.get('id', none) | tojson }};
 
 
         const latestDriveIdAtLoad =
@@ -682,61 +563,42 @@
                     drives[0].get('id', none)
                     if drives
                     else none
-                )
-                | tojson
+                ) | tojson
             }};
 
 
-        const viewingLatestDrive =
-            currentDriveId ===
-            latestDriveIdAtLoad;
+        if (currentDriveId === latestDriveIdAtLoad) {
 
+            setInterval(async () => {
 
-        if (viewingLatestDrive) {
+                try {
 
-            setInterval(
+                    const response = await fetch(
+                        "/api/latest"
+                    );
 
-                async () => {
-
-                    try {
-
-                        const response =
-                            await fetch(
-                                "/api/latest"
-                            );
-
-
-                        const latest =
-                            await response.json();
-
-
-                        if (
-                            latest.id
-                            &&
-                            latest.id !==
-                            currentDriveId
-                        ) {
-
-                            window.location.href =
-                                "/";
-
-                        }
-
+                    if (!response.ok) {
+                        return;
                     }
 
-                    catch (error) {
+                    const latest = await response.json();
 
-                        console.log(
-                            "Waiting for dashboard update..."
-                        );
-
+                    if (
+                        latest.id &&
+                        latest.id !== currentDriveId
+                    ) {
+                        window.location.href = "/";
                     }
 
-                },
+                } catch (error) {
 
-                2000
+                    console.log(
+                        "Waiting for dashboard update..."
+                    );
 
-            );
+                }
+
+            }, 2000);
 
         }
 
@@ -747,13 +609,10 @@
 
     <section class="empty">
 
-        <h2>
-            No drive data yet
-        </h2>
+        <h2>No drive data yet</h2>
 
         <p>
-            Import a Car Scanner CSV
-            to begin.
+            Import a Car Scanner CSV to begin.
         </p>
 
     </section>
@@ -763,5 +622,4 @@
 </div>
 
 </body>
-
 </html>
