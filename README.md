@@ -2,7 +2,7 @@
 
 A Python-based vehicle telemetry analysis and dashboard project that processes OBD-II driving data recorded with Car Scanner and a Bluetooth OBD-II adapter.
 
-The project converts raw vehicle sensor data into an interactive local dashboard for reviewing drive summaries, hybrid-system temperatures, battery state of charge, engine RPM, speed, and other vehicle metrics.
+The project converts raw vehicle sensor data into an interactive local dashboard for reviewing drive summaries, hybrid-system temperatures, battery state of charge, engine RPM, and other vehicle metrics.
 
 ## Overview
 
@@ -20,11 +20,10 @@ Raw vehicle data is kept private and is excluded from the GitHub repository.
 
 - Processes Car Scanner CSV telemetry using Python and Pandas
 - Automatically detects newly imported Car Scanner CSV files
-- Calculates drive time and estimated distance from GPS speed data
 - Displays minimum, maximum, and average sensor values
 - Converts selected temperature data from Celsius to Fahrenheit
 - Stores short-term drive history
-- Automatically removes drive data older than 3 days
+- Automatically removes drive data older than 7 days
 - Displays interactive time-series charts
 - Automatically detects new drive records while viewing the latest dashboard
 - Runs locally through a Flask web application
@@ -41,18 +40,13 @@ The current version analyzes:
 - Hybrid battery temperature
 - Engine RPM
 - Intake air temperature
-- GPS vehicle speed
-- Estimated trip distance
 - Drive duration
 
 ## Dashboard
 
 The dashboard provides a quick summary of each drive, including:
 
-- Distance
 - Drive time
-- Average speed
-- Maximum speed
 - Average RPM
 - Maximum RPM
 - Intake air temperature
@@ -63,7 +57,6 @@ Time-series charts are available for:
 
 - Hybrid battery SOC
 - Engine RPM
-- Vehicle speed
 - Engine coolant temperature
 - Inverter coolant temperature
 - MG1 temperature
@@ -164,7 +157,6 @@ Before importing a file, it checks for expected Car Scanner columns so unrelated
 - Converts sensor values to numeric data
 - Normalizes selected temperature units
 - Calculates summary statistics
-- Estimates distance from GPS speed and elapsed time
 - Creates processed drive data
 - Generates a JSON drive summary
 
@@ -239,7 +231,6 @@ The analyzer keeps only recent drive data.
 Files older than 7 days are automatically removed from:
 
 ```text
-data/raw/
 data/processed/
 data/history/
 ```
@@ -272,7 +263,6 @@ For this reason, raw data should remain local.
 - File transfer to the Mac may require accepting the transfer.
 - Vehicle identification currently uses available sensor characteristics rather than guaranteed vehicle metadata.
 - Fuel economy calculation is not yet included because the available fuel-rate data is not consistent enough for a reliable trip MPG calculation.
-- Distance is estimated using GPS speed and time rather than a dedicated trip-distance PID.
 
 ## Future Improvements
 

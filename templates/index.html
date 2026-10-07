@@ -55,37 +55,10 @@
     <section class="cards">
 
         <div class="card">
-            <span>Distance</span>
-
-            <strong>
-                {{ drive.get('distance_miles', 'N/A') }} mi
-            </strong>
-        </div>
-
-
-        <div class="card">
             <span>Drive Time</span>
 
             <strong>
                 {{ drive.get('drive_minutes', 'N/A') }} min
-            </strong>
-        </div>
-
-
-        <div class="card">
-            <span>Average Speed</span>
-
-            <strong>
-                {{ drive.get('speed', {}).get('avg', 'N/A') }} mph
-            </strong>
-        </div>
-
-
-        <div class="card">
-            <span>Maximum Speed</span>
-
-            <strong>
-                {{ drive.get('speed', {}).get('max', 'N/A') }} mph
             </strong>
         </div>
 
@@ -346,19 +319,6 @@
     <section class="panel">
 
         <h2>
-            Vehicle Speed
-        </h2>
-
-        <div class="chart-wrapper">
-            <canvas id="speedChart"></canvas>
-        </div>
-
-    </section>
-
-
-    <section class="panel">
-
-        <h2>
             Drive History
         </h2>
 
@@ -388,8 +348,6 @@
 
 
                 <div>
-                    {{ item.get('distance_miles', 'N/A') }} mi
-                    ·
                     {{ item.get('drive_minutes', 'N/A') }} min
                 </div>
 
@@ -679,56 +637,6 @@
                             label: "Engine RPM",
 
                             data: rpmData,
-
-                            parsing: false,
-
-                            pointRadius: 0,
-
-                            borderWidth: 2
-
-                        }
-
-                    ]
-
-                },
-
-                options: chartOptions
-
-            }
-        );
-
-
-        /*
-        -------------------------
-        SPEED CHART
-        -------------------------
-        */
-
-        const speedData =
-            {{
-                drive
-                    .get('charts', {})
-                    .get('speed', [])
-                    | tojson
-            }};
-
-
-        new Chart(
-            document.getElementById("speedChart"),
-
-            {
-
-                type: "line",
-
-                data: {
-
-                    datasets: [
-
-                        {
-
-                            label: "Speed (mph)",
-
-                            data: speedData,
 
                             parsing: false,
 

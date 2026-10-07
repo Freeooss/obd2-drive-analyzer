@@ -279,49 +279,6 @@ def get_drive_datetime(path, df=None):
 
 
 # --------------------------------------------------
-# DISTANCE
-# --------------------------------------------------
-
-def calculate_distance(
-    elapsed_min,
-    speed_mph
-):
-    temp = pd.DataFrame(
-        {
-            "elapsed_min": elapsed_min,
-            "speed_mph": speed_mph
-        }
-    ).dropna()
-
-    if len(temp) < 2:
-        return 0.0
-
-    delta_hours = (
-        temp["elapsed_min"]
-        .diff()
-        .fillna(0)
-        / 60
-    )
-
-    previous_speed = (
-        temp["speed_mph"]
-        .shift(1)
-    )
-
-    average_speed = (
-        temp["speed_mph"]
-        + previous_speed
-    ) / 2
-
-    distance = (
-        average_speed.fillna(0)
-        * delta_hours
-    ).sum()
-
-    return float(distance)
-
-
-# --------------------------------------------------
 # CHART SAMPLING
 # --------------------------------------------------
 
@@ -520,23 +477,6 @@ def process_file(csv_path):
 
 
     # -------------------------
-    # SPEED
-    # -------------------------
-
-    speed = (
-        numeric_series_from_candidates(
-            df,
-            [
-                "Speed (GPS) (mph)",
-                "GPS Speed",
-                "Vehicle Speed",
-                "Speed"
-            ]
-        )
-    )
-
-
-    # -------------------------
     # ENGINE RPM
     # -------------------------
 
@@ -705,15 +645,8 @@ def process_file(csv_path):
 
 
     # -------------------------
-    # DRIVE DISTANCE / TIME
+    # DRIVE TIME
     # -------------------------
-
-    distance = (
-        calculate_distance(
-            elapsed,
-            speed
-        )
-    )
 
     valid_elapsed = (
         elapsed.dropna()
@@ -738,9 +671,6 @@ def process_file(csv_path):
         {
             "elapsed_min":
                 elapsed,
-
-            "speed_mph":
-                speed,
 
             "engine_rpm":
                 rpm,
@@ -817,14 +747,6 @@ def process_file(csv_path):
                 1
             ),
 
-        "distance_miles":
-            round(
-                distance,
-                2
-            ),
-
-        "speed":
-            safe_stats(speed),
 
         "rpm":
             safe_stats(rpm),
@@ -876,12 +798,6 @@ def process_file(csv_path):
         },
 
         "charts": {
-
-            "speed":
-                sample_chart(
-                    elapsed,
-                    speed
-                ),
 
             "rpm":
                 sample_chart(
